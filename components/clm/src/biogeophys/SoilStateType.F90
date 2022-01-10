@@ -718,12 +718,12 @@ contains
 
                 this%bd_col(c,lev)        = (1._r8 - this%watsat_col(c,lev))*2.7e3_r8 
                 !this%watsat_col(c,lev)    = (1._r8 - om_frac) * this%watsat_col(c,lev) + om_watsat*om_frac
-		this%watsat_col(c,lev)    = 0.51_r8
+		this%watsat_col(c,lev)    = 0.51_r8 !for bci
                 tkm                       = (1._r8-om_frac) * (8.80_r8*sand+2.92_r8*clay)/(sand+clay)+om_tkm*om_frac ! W/(m K)
-                !this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
-		this%bsw_col(c,lev)       = 10_r8
-                !this%sucsat_col(c,lev)    = (1._r8-om_frac) * this%sucsat_col(c,lev) + om_sucsat*om_frac
-		this%sucsat_col(c,lev)    = 200.0_r8
+                this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
+		!this%bsw_col(c,lev)       = 10_r8 !for bci
+                this%sucsat_col(c,lev)    = (1._r8-om_frac) * this%sucsat_col(c,lev) + om_sucsat*om_frac
+		!this%sucsat_col(c,lev)    = 200.0_r8 !for bci
                 this%hksat_min_col(c,lev) = xksat
 
                 ! perc_frac is zero unless perf_frac greater than percolation threshold
@@ -745,7 +745,8 @@ contains
                    uncon_hksat = 0._r8
                 end if
                 !this%hksat_col(c,lev)  = uncon_frac*uncon_hksat + (perc_frac*om_frac)*om_hksat
-		this%hksat_col(c,lev)  = this%hksat_adj_col(c) * this%hksat_obs_col(c,lev)
+		!this%hksat_col(c,lev)  = this%hksat_adj_col(c) * this%hksat_obs_col(c,lev) !for bci
+                this%hksat_col(c,lev)  = this%hksat_adj_col(c) * (uncon_frac*uncon_hksat + (perc_frac*om_frac)*om_hksat)
 
                 this%tkmg_col(c,lev)   = tkm ** (1._r8- this%watsat_col(c,lev))           
 
