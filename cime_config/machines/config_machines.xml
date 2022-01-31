@@ -2708,13 +2708,25 @@
         <command name="load">intel/19.0.4</command>
         <command name="load">openmpi/2.1.2</command>
       </modules>
-      <modules>
-        <command name="load">friendly-testing</command>
-        <command name="load">hdf5-parallel/1.8.16</command>
-        <command name="load">pnetcdf/1.11.2</command>
-        <command name="load">netcdf-h5parallel/4.7.3</command>
-        <command name="load">mkl/2019.0.4</command>
+      <modules compiler="intel" mpilib="mpi-serial">
+        <command name="load">intel/19.0.4</command>
+        <command name="load">openmpi/2.1.2</command>
       </modules>
+     <modules mpilib="!mpi-serial">
+      <command name="load">friendly-testing</command>
+      <command name="load">hdf5-parallel/1.8.16</command>
+      <command name="load">pnetcdf/1.11.2</command>
+      <command name="load">netcdf-h5parallel/4.7.3</command>
+      <command name="load">mkl/2019.0.4</command>
+    </modules>
+    <modules mpilib="mpi-serial">
+      <command name="load">friendly-testing</command>
+      <command name="load">hdf5-serial/1.8.16 </command>
+      <command name="load">hdf5-parallel/1.8.16</command>
+      <command name="load">pnetcdf/1.11.2</command>
+      <command name="load">netcdf/4.5.3-fortran</command>
+      <command name="load">mkl/2019.0.4</command>
+    </modules>
     </module_system>
     <RUNDIR>$CIME_OUTPUT_ROOT/$CASE/run</RUNDIR>
     <EXEROOT>$CIME_OUTPUT_ROOT/$CASE/bld</EXEROOT>
