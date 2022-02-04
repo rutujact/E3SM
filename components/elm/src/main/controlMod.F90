@@ -436,10 +436,10 @@ contains
                   errMsg(__FILE__, __LINE__))
           end if
 
-          if ( use_var_soil_thick ) then
-             call endrun(msg=' ERROR: use_var_soil_thick and use_fates cannot both be set to true.'//&
-                   errMsg(__FILE__, __LINE__))
-          end if
+          !if ( use_var_soil_thick ) then
+          !   call endrun(msg=' ERROR: use_var_soil_thick and use_fates cannot both be set to true.'//&
+          !         errMsg(__FILE__, __LINE__))
+          !end if
 
        end if
 

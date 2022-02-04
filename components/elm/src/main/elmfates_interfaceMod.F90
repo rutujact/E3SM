@@ -2534,14 +2534,15 @@ end subroutine wrap_update_hifrq_hist
              this%fates(nc)%bc_in(s)%decomp_id(j) = j
              ! Check to make sure that dz = dz_decomp_sisl when vertical soil dynamics
              ! are active
-             if(abs(this%fates(nc)%bc_in(s)%dz_decomp_sisl(j)-this%fates(nc)%bc_in(s)%dz_sisl(j))>1.e-10_r8)then
-                write(iulog,*) 'when vertical soil decomp dynamics are on'
-                write(iulog,*) 'fates assumes that the decomposition depths equal the soil depths'
-                write(iulog,*) 'layer: ',j
-                write(iulog,*) 'dz_decomp_sisl(j): ',this%fates(nc)%bc_in(s)%dz_decomp_sisl(j)
-                write(iulog,*) 'dz_sisl(j): ',this%fates(nc)%bc_in(s)%dz_sisl(j)
-                call endrun(msg=errMsg(sourcefile, __LINE__))
-             end if
+!Turning off to allow use_soil_var_thick to work
+!             if(abs(this%fates(nc)%bc_in(s)%dz_decomp_sisl(j)-this%fates(nc)%bc_in(s)%dz_sisl(j))>1.e-10_r8)then
+!                write(iulog,*) 'when vertical soil decomp dynamics are on'
+!                write(iulog,*) 'fates assumes that the decomposition depths equal the soil depths'
+!                write(iulog,*) 'layer: ',j
+!                write(iulog,*) 'dz_decomp_sisl(j): ',this%fates(nc)%bc_in(s)%dz_decomp_sisl(j)
+!                write(iulog,*) 'dz_sisl(j): ',this%fates(nc)%bc_in(s)%dz_sisl(j)
+!                call endrun(msg=errMsg(sourcefile, __LINE__))
+!             end if
           end do
        else
           do j=1,nlevsoil
