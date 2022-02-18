@@ -360,6 +360,7 @@ contains
     real(r8) ,pointer  :: gti (:)                       ! read in - fmax 
     real(r8) ,pointer  :: hai(:)                        ! read in - hksat_adj: saturated hydraulic conductivity ajust factor (>1 higher than original, <1.0 smaller)
     real(r8) ,pointer  :: hksat3d(:,:)                  ! read in - hksat obs: saturated hydraulic conductivity observed profile
+    real(r8) ,pointer  :: watsat3d (:,:)                ! read in - volumetric soil water at saturation (porosity) (needs to be a point     er for use in ncdio)
     real(r8) ,pointer  :: sand3d (:,:)                  ! read in - soil texture: percent sand (needs to be a pointer for use in ncdio)
     real(r8) ,pointer  :: clay3d (:,:)                  ! read in - soil texture: percent clay (needs to be a pointer for use in ncdio)
     real(r8) ,pointer  :: grvl3d (:,:)                  ! read in - soil texture: percent gravel (needs to be a pointer for use in ncdio)
@@ -419,6 +420,7 @@ contains
     ! dynamic memory allocation
     ! --------------------------------------------------------------------
 
+    allocate(watsat3d(begg:endg,nlevsoifl))
     allocate(sand3d(begg:endg,nlevsoifl))
     allocate(clay3d(begg:endg,nlevsoifl))
     allocate(grvl3d(begg:endg,nlevsoifl))
@@ -450,6 +452,13 @@ contains
 
     allocate(organic3d(bounds%begg:bounds%endg,nlevsoifl))
     call organicrd(organic3d)
+    
+    ! Read in soil water at saturation 
+
+    call ncd_io(ncid=ncid, varname='WAT_SAT', flag='read', data=watsat3d, dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) then
+        call endrun(msg=' ERROR: WAT_SAT NOT on surfdata file'//errMsg(__FILE__, __LINE__))
+    end if
 
     ! Read in sand, clay, gravel data
 
@@ -645,6 +654,7 @@ contains
              if ( more_vertlayers )then ! duplicate clay and sand values from last soil layer
 
                 if (lev .eq. 1) then
+                   watsat = watsat3d(g,1)
                    clay = clay3d(g,1)
                    sand = sand3d(g,1)
                    gravel = grvl3d(g,1)
@@ -652,6 +662,7 @@ contains
                 else if (lev <= nlevsoi) then
                    do j = 1,nlevsoifl-1
                       if (zisoi(lev) >= zisoifl(j) .AND. zisoi(lev) < zisoifl(j+1)) then
+                         watsat = watsat3d(g,j+1)
                          clay = clay3d(g,j+1)
                          sand = sand3d(g,j+1)
                          gravel = grvl3d(g,j+1)
@@ -659,6 +670,7 @@ contains
                       endif
                    end do
                 else
+                   watsat = watsat3d(g,nlevsoifl)
                    clay = clay3d(g,nlevsoifl)
                    sand = sand3d(g,nlevsoifl)
                    gravel = grvl3d(g,nlevsoifl)
@@ -666,11 +678,13 @@ contains
                 endif
              else
                 if (lev <= nlevsoi) then ! duplicate clay and sand values from 10th soil layer
+                   watsat = watsat3d(g,lev)
                    clay = clay3d(g,lev)
                    sand = sand3d(g,lev)
                    gravel = grvl3d(g,lev)
                    om_frac = (organic3d(g,lev)/organic_max)**2._r8
                 else
+                   watsat = watsat3d(g,nlevsoi)
                    clay = clay3d(g,nlevsoi)
                    sand = sand3d(g,nlevsoi)
                    gravel = grvl3d(g,nlevsoi)
@@ -681,6 +695,7 @@ contains
              if (lun_pp%itype(l) == istdlak) then
 
                 if (lev <= nlevsoi) then
+                   this%cellwatsat_col(c,lev) = watsat
                    this%cellsand_col(c,lev) = sand
                    this%cellclay_col(c,lev) = clay
                    this%cellgrvl_col(c,lev) = gravel
@@ -694,6 +709,7 @@ contains
                 end if
 
                 if (lev <= nlevbed) then
+                   this%watsat_col(c,lev) = watsat
                    this%cellsand_col(c,lev) = sand
                    this%cellclay_col(c,lev) = clay
                    this%cellgrvl_col(c,lev) = gravel
@@ -718,7 +734,7 @@ contains
 
                 this%bd_col(c,lev)        = (1._r8 - this%watsat_col(c,lev))*2.7e3_r8 
                 !this%watsat_col(c,lev)    = (1._r8 - om_frac) * this%watsat_col(c,lev) + om_watsat*om_frac
-		this%watsat_col(c,lev)    = 0.33_r8 !for FG 0.51_r8 !for bci
+		this%watsat_col(c,lev)    = watsat !0.33_r8 !for FG 0.51_r8 !for bci
                 tkm                       = (1._r8-om_frac) * (8.80_r8*sand+2.92_r8*clay)/(sand+clay)+om_tkm*om_frac ! W/(m K)
                 this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
 		!this%bsw_col(c,lev)       = 10_r8 !for bci
