@@ -357,7 +357,8 @@ contains
     real(r8) ,pointer  :: zsoifl (:)                    ! Output: [real(r8) (:)]  original soil midpoint 
     real(r8) ,pointer  :: zisoifl (:)                   ! Output: [real(r8) (:)]  original soil interface depth 
     real(r8) ,pointer  :: dzsoifl (:)                   ! Output: [real(r8) (:)]  original soil thickness 
-    real(r8) ,pointer  :: gti (:)                       ! read in - fmax 
+    real(r8) ,pointer  :: gti (:)                       ! read in - fmax
+    real(r8) ,pointer  :: bsi(:)                        ! read in - BSW: Clapp Hornberger b 
     real(r8) ,pointer  :: hai(:)                        ! read in - hksat_adj: saturated hydraulic conductivity ajust factor (>1 higher than original, <1.0 smaller)
     real(r8) ,pointer  :: hksat3d(:,:)                  ! read in - hksat obs: saturated hydraulic conductivity observed profile
     real(r8) ,pointer  :: watsat3d (:,:)                ! read in - volumetric soil water at saturation (porosity) (needs to be a point     er for use in ncdio)
@@ -512,6 +513,19 @@ contains
        this%wtfact_col(c) = gti(g)
     end do
     deallocate(gti)
+
+    ! Read BSW
+
+    allocate(bsi(bounds%begg:bounds%endg))
+    call ncd_io(ncid=ncid, varname='BSW', flag='read', data=bsi, dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) then
+       call endrun(msg=' ERROR: BSW NOT on surfdata file'//errMsg(__FILE__, __LINE__))
+    end if
+    do c = bounds%begc, bounds%endc
+       g = col_pp%gridcell(c)
+       this%bsw_col(c) = bsi(g)
+    end do
+    deallocate(hai)
 
     ! Read hksat_adj
 
@@ -736,7 +750,8 @@ contains
                 !this%watsat_col(c,lev)    = (1._r8 - om_frac) * this%watsat_col(c,lev) + om_watsat*om_frac
 		this%watsat_col(c,lev)    = watsat !0.33_r8 !for FG 0.51_r8 !for bci
                 tkm                       = (1._r8-om_frac) * (8.80_r8*sand+2.92_r8*clay)/(sand+clay)+om_tkm*om_frac ! W/(m K)
-                this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
+                this%bsw_col(c,lev)       = this%bsw_col(c)
+                !this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
 		!this%bsw_col(c,lev)       = 10_r8 !for bci
                 this%sucsat_col(c,lev)    = (1._r8-om_frac) * this%sucsat_col(c,lev) + om_sucsat*om_frac
 		!this%sucsat_col(c,lev)    = 200.0_r8 !for bci
