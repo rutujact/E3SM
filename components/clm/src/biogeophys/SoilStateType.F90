@@ -44,6 +44,7 @@ module SoilStateType
      real(r8), pointer :: bd_col               (:,:) ! col bulk density of dry soil material [kg/m^3] (CN)
 
      ! hydraulic properties
+     real(r8), pointer :: bsi_col              (:)   ! col for inputting Clapp and Hornberger "b"
      real(r8), pointer :: hksat_adj_col        (:)   ! col adjusting factor for hydraulic conductivity at saturation (>1 higher than original, <1.0 smaller)
      real(r8), pointer :: hksat_obs_col        (:,:) ! col hydraulic conductivity at saturation (mm H2O /s) observed profile
      real(r8), pointer :: hksat_col            (:,:) ! col hydraulic conductivity at saturation (mm H2O /s) 
@@ -142,6 +143,7 @@ contains
     allocate(this%cellgrvl_col         (begc:endc,nlevgrnd))            ; this%cellgrvl_col         (:,:) = nan 
     allocate(this%bd_col               (begc:endc,nlevgrnd))            ; this%bd_col               (:,:) = nan
 
+    allocate(this%bsi_col              (begc:endc))                     ; this%bsi_col              (:)   = nan
     allocate(this%hksat_adj_col        (begc:endc))                     ; this%hksat_adj_col        (:)   = nan
     allocate(this%hksat_obs_col        (begc_all:endc_all,nlevgrnd))    ; this%hksat_obs_col        (:,:) = nan
     allocate(this%hksat_col            (begc_all:endc_all,nlevgrnd))    ; this%hksat_col            (:,:) = spval
@@ -523,9 +525,9 @@ contains
     end if
     do c = bounds%begc, bounds%endc
        g = col_pp%gridcell(c)
-       this%bsw_col(c) = bsi(g)
+       this%bsi_col(c) = bsi(g)
     end do
-    deallocate(hai)
+    deallocate(bsi)
 
     ! Read hksat_adj
 
@@ -750,7 +752,7 @@ contains
                 !this%watsat_col(c,lev)    = (1._r8 - om_frac) * this%watsat_col(c,lev) + om_watsat*om_frac
 		this%watsat_col(c,lev)    = watsat !0.33_r8 !for FG 0.51_r8 !for bci
                 tkm                       = (1._r8-om_frac) * (8.80_r8*sand+2.92_r8*clay)/(sand+clay)+om_tkm*om_frac ! W/(m K)
-                this%bsw_col(c,lev)       = this%bsw_col(c)
+                this%bsw_col(c,lev)       = this%bsi_col(c)
                 !this%bsw_col(c,lev)       = (1._r8-om_frac) * (2.91_r8 + 0.159_r8*clay) + om_frac*om_b
 		!this%bsw_col(c,lev)       = 10_r8 !for bci
                 this%sucsat_col(c,lev)    = (1._r8-om_frac) * this%sucsat_col(c,lev) + om_sucsat*om_frac
