@@ -709,10 +709,7 @@ contains
              if (lun_pp%itype(l) == istdlak) then
 
                 if (lev <= nlevsoi) then
-<<<<<<< HEAD
                    this%watsat_col(c,lev) = watsat
-=======
->>>>>>> 7956649461b787e3c0e0ce915158705a5bf3fc06
                    this%cellsand_col(c,lev) = sand
                    this%cellclay_col(c,lev) = clay
                    this%cellgrvl_col(c,lev) = gravel
