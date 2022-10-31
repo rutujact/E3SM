@@ -74,7 +74,7 @@
         </ntasks>
       </pes>
     </mach>
-    <mach name="pm-cpu|alvarez">
+    <mach name="pm-cpu|alvarez|chicoma">
       <pes compset="any" pesize="any">
         <comment>elm: default, 1 node x MAX_MPITASKS_PER_NODE mpi x 2 omp @ root 0</comment>
         <ntasks>

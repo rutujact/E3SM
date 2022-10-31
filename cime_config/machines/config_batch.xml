@@ -532,7 +532,7 @@
 	</queues>
     </batch_system>
 
-   <batch_system MACH="chicoma-cpu" type="slurm">
+   <batch_system MACH="chicoma" type="slurm">
     <directives>
      <directive>--partition=standard </directive>
      <directive>--qos=standard </directive>
