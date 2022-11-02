@@ -2055,7 +2055,7 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine htape_timeconst3D(t, &
-       bounds, watsat_col, sucsat_col, bsw_col, hksat_col, mode)
+       bounds, watsat_col, sucsat_col, bsw_col, hksat_col, thk_col, tkmg_col, tkdry_col, tksatu_col, mode)
     !
     ! !DESCRIPTION:
     ! Write time constant 3D variables to history tapes.
@@ -2076,7 +2076,11 @@ contains
     real(r8)          , intent(in) :: watsat_col( bounds%begc:,1: ) 
     real(r8)          , intent(in) :: sucsat_col( bounds%begc:,1: ) 
     real(r8)          , intent(in) :: bsw_col( bounds%begc:,1: ) 
-    real(r8)          , intent(in) :: hksat_col( bounds%begc:,1: ) 
+    real(r8)          , intent(in) :: hksat_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: thk_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tkmg_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tkdry_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tksatu_col( bounds%begc:,1: )
     character(len=*)  , intent(in) :: mode ! 'define' or 'write'
     !
     ! !LOCAL VARIABLES:
@@ -2090,7 +2094,7 @@ contains
     !
     real(r8), pointer :: histi(:,:)       ! temporary
     real(r8), pointer :: histo(:,:)       ! temporary
-    integer, parameter :: nflds = 6       ! Number of 3D time-constant fields
+    integer, parameter :: nflds = 10       ! Number of 3D time-constant fields
     character(len=*),parameter :: subname = 'htape_timeconst3D'
     character(len=*),parameter :: varnames(nflds) = (/ &
                                                         'ZSOI  ', &
@@ -2098,7 +2102,11 @@ contains
                                                         'WATSAT', &
                                                         'SUCSAT', &
                                                         'BSW   ', &
-                                                        'HKSAT '  &
+                                                        'HKSAT ', &
+                                                        'THK   ', &
+                                                        'TKMG  ', &
+                                                        'TKDRY ', &
+                                                        'TKSATU'  &
                                                     /)
     real(r8), pointer :: histil(:,:)      ! temporary
     real(r8), pointer :: histol(:,:)
@@ -2113,7 +2121,10 @@ contains
     SHR_ASSERT_ALL((ubound(sucsat_col) == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     SHR_ASSERT_ALL((ubound(bsw_col)    == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     SHR_ASSERT_ALL((ubound(hksat_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
-
+    SHR_ASSERT_ALL((ubound(thk_col)    == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tkmg_col)   == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tkdry_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tksatu_col) == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     !-------------------------------------------------------------------------------
     !***      Non-time varying 3D fields                    ***
     !***      Only write out when this subroutine is called ***
@@ -2136,6 +2147,14 @@ contains
              long_name='slope of soil water retention curve'; units = '1'
           else if (ifld == 6) then
              long_name='saturated hydraulic conductivity'; units = '1'
+          else if (ifld == 7) then
+             long_name='thermal conductivity of each layer'; units = '1'
+          else if (ifld == 8) then
+             long_name='thermal conductivity, soil minerals'; units = '1'
+          else if (ifld == 9) then
+             long_name='thermal conductivity, dry soil'; units = '1'          
+          else if (ifld == 10) then
+             long_name='thermal conductivity, saturated soil'; units = '1'
           else
              call endrun(msg=' ERROR: bad 3D time-constant field index'//errMsg(__FILE__, __LINE__))
           end if
@@ -2199,6 +2218,14 @@ contains
              l2g_scale_type = 'veg'
           else if (ifld == 6) then  ! HKSAT
              l2g_scale_type = 'veg'
+          else if (ifld == 7) then  ! THK
+             l2g_scale_type = 'veg'
+          else if (ifld == 8) then  ! TKMG
+             l2g_scale_type = 'veg'
+          else if (ifld == 9) then  ! TKDRY
+             l2g_scale_type = 'veg'
+          else if (ifld == 10) then  ! TKSATU
+             l2g_scale_type = 'veg'
           end if
 
           histi(:,:) = spval
@@ -2212,6 +2239,10 @@ contains
                    if (ifld ==4) histi(c,lev) = sucsat_col(c,lev)
                    if (ifld ==5) histi(c,lev) = bsw_col(c,lev)
                    if (ifld ==6) histi(c,lev) = hksat_col(c,lev)
+                   if (ifld ==7) histi(c,lev) = thk_col(c,lev)
+                   if (ifld ==8) histi(c,lev) = tkmg_col(c,lev)
+                   if (ifld ==9) histi(c,lev) = tkdry_col(c,lev)
+                   if (ifld ==10) histi(c,lev) = tksatu_col(c,lev)
              end do
           end do
           if (tape(t)%dov2xy) then
@@ -3268,7 +3299,7 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine hist_htapes_wrapup( rstwr, nlend, bounds, &
-       watsat_col, sucsat_col, bsw_col, hksat_col)
+       watsat_col, sucsat_col, bsw_col, hksat_col, thk_col, tkmg_col, tkdry_col, tksatu_col)
     !
     ! !DESCRIPTION:
     ! Write history tape(s)
@@ -3304,6 +3335,10 @@ contains
     real(r8)          , intent(in) :: sucsat_col( bounds%begc:,1: ) 
     real(r8)          , intent(in) :: bsw_col( bounds%begc:,1: ) 
     real(r8)          , intent(in) :: hksat_col( bounds%begc:,1: ) 
+    real(r8)          , intent(in) :: thk_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tkmg_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tkdry_col( bounds%begc:,1: )
+    real(r8)          , intent(in) :: tksatu_col( bounds%begc:,1: )
     !
     ! !LOCAL VARIABLES:
     integer :: t                          ! tape index
@@ -3331,7 +3366,10 @@ contains
     SHR_ASSERT_ALL((ubound(sucsat_col) == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     SHR_ASSERT_ALL((ubound(bsw_col)    == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     SHR_ASSERT_ALL((ubound(hksat_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
-
+    SHR_ASSERT_ALL((ubound(thk_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tkmg_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tkdry_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
+    SHR_ASSERT_ALL((ubound(tksatu_col)  == (/bounds%endc, nlevgrnd/)), errMsg(__FILE__, __LINE__))
     ! get current step
 
     nstep = get_nstep()
@@ -3397,7 +3435,7 @@ contains
              ! Define 3D time-constant field variables only to first primary tape
              if ( do_3Dtconst .and. t == 1 ) then
                 call htape_timeconst3D(t, &
-                     bounds, watsat_col, sucsat_col, bsw_col, hksat_col, mode='define')
+                     bounds, watsat_col, sucsat_col, bsw_col, hksat_col, thk_col, tkmg_col, tkdry_col, tksatu_col, mode='define')
                 TimeConst3DVars_Filename = trim(locfnh(t))
              end if
 
@@ -3416,7 +3454,7 @@ contains
           ! Write 3D time constant history variables only to first primary tape
           if ( do_3Dtconst .and. t == 1 .and. tape(t)%ntimes == 1 )then
              call htape_timeconst3D(t, &
-                  bounds, watsat_col, sucsat_col, bsw_col, hksat_col, mode='write')
+                  bounds, watsat_col, sucsat_col, bsw_col, hksat_col, thk_col, tkmg_col, tkdry_col, tksatu_col, mode='write')
              do_3Dtconst = .false.
           end if
 

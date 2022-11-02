@@ -1463,9 +1463,12 @@ contains
             soilstate_vars%watsat_col(bounds_proc%begc:bounds_proc%endc, 1:), &
             soilstate_vars%sucsat_col(bounds_proc%begc:bounds_proc%endc, 1:), &
             soilstate_vars%bsw_col(bounds_proc%begc:bounds_proc%endc, 1:),    &
-            soilstate_vars%hksat_col(bounds_proc%begc:bounds_proc%endc, 1:))
-
-       call t_stopf('elm_drv_io_htapes')
+            soilstate_vars%hksat_col(bounds_proc%begc:bounds_proc%endc, 1:),  &
+            soilstate_vars%thk_col(bounds_proc%begc:bounds_proc%endc, 1:),  &
+            soilstate_vars%tkmg_col(bounds_proc%begc:bounds_proc%endc, 1:),  &
+            soilstate_vars%tkdry_col(bounds_proc%begc:bounds_proc%endc, 1:),  &
+            soilstate_vars%tksatu_col(bounds_proc%begc:bounds_proc%endc, 1:))
+  
        ! Write restart/initial files if appropriate
        if (rstwr) then
           call t_startf('elm_drv_io_wrest')
