@@ -536,13 +536,13 @@
 	</queues>
     </batch_system>
 
-   <batch_system MACH="chicoma-cpu" type="slurm">
+   <batch_system MACH="chicoma" type="slurm">
     <directives>
      <directive>--partition=standard </directive>
      <directive>--qos=standard </directive>
     </directives>
     <queues>
-      <queue walltimemax="00:30:00" nodemax="560" default="true">standard</queue>
+      <queue walltimemax="16:00:00" nodemax="560" default="true">standard</queue>
     </queues>
    </batch_system>
 
