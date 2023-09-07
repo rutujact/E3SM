@@ -3405,7 +3405,7 @@
         <command name="rm">cray-netcdf-hdf5parallel</command>
         <command name="rm">cray-parallel-netcdf</command>
         <command name="rm">cmake</command>
-        <command name="load">craype/2.7.19</command>
+        <command name="load">craype/2.7.21</command>
       </modules>
 
       <modules compiler="cray">
@@ -3418,10 +3418,10 @@
       </modules>
 
       <modules compiler="gnu">
-        <command name="rm">PrgEnv-cray</command>
+	<command name="rm">PrgEnv-cray/8.3.3</command>
         <command name="rm">PrgEnv-intel</command>
-        <command name="load">PrgEnv-gnu/8.3.3</command>
-        <command name="load">gcc/11.2.0</command>
+	<command name="load">gcc/11.2.0</command>
+	<command name="load">PrgEnv-gnu/8.3.3</command>
         <command name="rm">cray-libsci</command>
         <command name="load">cray-libsci/22.11.1.2</command>
       </modules>
@@ -3446,7 +3446,7 @@
       </modules>
 
       <modules mpilib="mpi-serial">
-        <command name="swap">cray-mpich cray-mpich/8.1.21</command>
+        <command name="swap">cray-mpich cray-mpich/8.1.26</command>
         <command name="rm">cray-netcdf-hdf5parallel</command>
         <command name="rm">cray-hdf5-parallel</command>
         <command name="rm">cray-parallel-netcdf</command>
